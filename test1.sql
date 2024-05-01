@@ -1,90 +1,97 @@
 -- SEQUENCE region_seq START WITH 1;
 
-CREATE TABLE region(
-id NUMBER /*DEFAULT region_seq.nextval  NOT NULL*/ PRIMARY KEY,
-region_name VARCHAR2(256) 
+CREATE TABLE REGION
+(
+    ID          NUMBER /*DEFAULT region_seq.nextval  NOT NULL*/ PRIMARY KEY,
+    REGION_NAME VARCHAR2(256)
 );
 
-CREATE SEQUENCE gorod_seq START WITH 1;
+CREATE SEQUENCE GOROD_SEQ START WITH 1;
 
-CREATE TABLE gorod(
-id NUMBER DEFAULT gorod_seq.nextval  PRIMARY KEY,
-city_name VARCHAR2(256),
-region_id NUMBER NOT NULL,
-naselenie NUMBER,
- CONSTRAINT fk_region
-    FOREIGN KEY (region_id)
-    REFERENCES region(id)
+CREATE TABLE GOROD
+(
+    ID        NUMBER DEFAULT GOROD_SEQ.NEXTVAL PRIMARY KEY,
+    CITY_NAME VARCHAR2(256),
+    REGION_ID NUMBER NOT NULL,
+    NASELENIE NUMBER,
+    CONSTRAINT FK_REGION
+        FOREIGN KEY (REGION_ID)
+            REFERENCES REGION (ID)
 );
 
 
-INSERT INTO region(id, region_name) VALUES(1, 'Чувашская Республика');
-INSERT INTO region(id, region_name) VALUES(2, 'Республика Татарстан');
-INSERT INTO region(id, region_name) VALUES(3, 'Республика Марий Эл');
-INSERT INTO region(id, region_name) VALUES(4, 'Нижегородская область');
+INSERT INTO REGION(ID, REGION_NAME)
+VALUES (1, 'Чувашская Республика');
+INSERT INTO REGION(ID, REGION_NAME)
+VALUES (2, 'Республика Татарстан');
+INSERT INTO REGION(ID, REGION_NAME)
+VALUES (3, 'Республика Марий Эл');
+INSERT INTO REGION(ID, REGION_NAME)
+VALUES (4, 'Нижегородская область');
 
-INSERT INTO gorod(city_name, region_id, naselenie)
-VALUES('Чебоксары', 1, 400000);
+INSERT INTO GOROD(CITY_NAME, REGION_ID, NASELENIE)
+VALUES ('Чебоксары', 1, 400000);
 
-INSERT INTO gorod(city_name, region_id, naselenie)
-VALUES('Йошкар-Ола', 3, 300000);
+INSERT INTO GOROD(CITY_NAME, REGION_ID, NASELENIE)
+VALUES ('Йошкар-Ола', 3, 300000);
 
-INSERT INTO gorod(city_name, region_id, naselenie)
-VALUES('Казань', 2, 1200000);
+INSERT INTO GOROD(CITY_NAME, REGION_ID, NASELENIE)
+VALUES ('Казань', 2, 1200000);
 
-INSERT INTO gorod(city_name, region_id, naselenie)
-VALUES('Нижний Новгород', 4, 1400000);
+INSERT INTO GOROD(CITY_NAME, REGION_ID, NASELENIE)
+VALUES ('Нижний Новгород', 4, 1400000);
 
-INSERT INTO gorod(city_name, region_id, naselenie)
-VALUES('Канаш', 1, 58000);
+INSERT INTO GOROD(CITY_NAME, REGION_ID, NASELENIE)
+VALUES ('Канаш', 1, 58000);
 
-INSERT INTO gorod(city_name, region_id)
-VALUES('Новочебоксарск', 1);
+INSERT INTO GOROD(CITY_NAME, REGION_ID)
+VALUES ('Новочебоксарск', 1);
 
 
-SELECT * FROM gorod;
+SELECT *
+FROM GOROD;
 
 --1
-select g.city_name, g.naselenie
-from gorod g
-join region r on g.region_id = r.id
-where r.region_name = 'Чувашская Республика'
-order by g.naselenie;
+SELECT G.CITY_NAME, G.NASELENIE
+FROM GOROD G
+         JOIN REGION R ON G.REGION_ID = R.ID
+WHERE R.REGION_NAME = 'Чувашская Республика'
+ORDER BY G.NASELENIE;
 
 --2. Вывести кол-во городов, хранящихся в таблице gorod, для которых не указана численность населения
-select count(*)
-from gorod
-where naselenie is null;
+SELECT COUNT(*)
+FROM GOROD
+WHERE NASELENIE IS NULL;
 
 --3. Выбрать из таблицы gorod город с наибольшим кол-вом населения
 --если нужно найти один любой с максимальной численностью
-select *
-from gorod
-where naselenie is not null
-order by naselenie desc
-FETCH FIRST 1 ROWS ONLY;
+SELECT *
+FROM GOROD
+WHERE NASELENIE IS NOT NULL
+ORDER BY NASELENIE DESC
+    FETCH FIRST 1 ROWS ONLY;
 --или если все
-select *
-from gorod g
-where naselenie = (select max(naselenie) from gorod);
+SELECT *
+FROM GOROD G
+WHERE NASELENIE = (SELECT MAX(NASELENIE) FROM GOROD);
 
 --4. Удалить из таблицы gorod города с населением меньше 400000
-delete  gorod
-where naselenie < 400000;
+DELETE GOROD
+WHERE NASELENIE < 400000;
 
 --5. Изменить поле naselenie в таблице gorod, выставив в нем для городов Чувашской Республики значение 200000
-update gorod g
-set naselenie = 200000
-where exists (select 1 from region r where g.region_id = r.id and r.region_name = 'Чувашская Республика');
+UPDATE GOROD G
+SET NASELENIE = 200000
+WHERE EXISTS (SELECT 1 FROM REGION R WHERE G.REGION_ID = R.ID AND R.REGION_NAME = 'Чувашская Республика');
 
 --6. Отобрать из таблицы gorod все города, начинающиеся на букву К
-select *
-from gorod
-where city_name like 'К%';
+SELECT *
+FROM GOROD
+WHERE CITY_NAME LIKE 'К%';
 
 --7. Написать запрос, позволяющий определить кол-во городов, которое хранится в таблице gorod для каждого региона, т.е. результат должен быть в виде: название соответствующего региона/кол-во городов, т.е. как на в таблице ниже:
-select r.region_name, count(g.id) as count_gorod
-from region  r
+SELECT R.REGION_NAME, COUNT(G.ID) AS COUNT_GOROD
+FROM REGION R
 --если регионы без городов не нужны, то убрать left
-left join gorod g on g.region_id = r.id 
-group by r.region_name;
+         LEFT JOIN GOROD G ON G.REGION_ID = R.ID
+GROUP BY R.REGION_NAME;
